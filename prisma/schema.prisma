@@ -6,3 +6,44 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id               String            @id @default(cuid())
+  name             String
+  email            String            @unique
+  password         String
+  role             Role              @default(USER)
+  readingIntervals ReadingInterval[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+}
+
+model Book {
+  id               String            @id @default(cuid())
+  title            String
+  author           String
+  numOfPages       Int
+  readingIntervals ReadingInterval[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+}
+
+model ReadingInterval {
+  id        String   @id @default(cuid())
+  userId    String
+  bookId    String
+  startPage Int
+  endPage   Int
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@index([userId, bookId])
+  @@index([bookId])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
