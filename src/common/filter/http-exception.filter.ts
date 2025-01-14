@@ -4,9 +4,9 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
-} from '@nestjs/common';
-import { Request, Response } from 'express';
-import { CustomException } from './custom-exception.filter';
+} from "@nestjs/common";
+import { Request, Response } from "express";
+import { CustomException } from "./custom-exception.filter";
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -19,23 +19,23 @@ export class AllExceptionsFilter implements ExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const isProduction = process.env.NODE_ENV === 'production';
+    const isProduction = process.env.NODE_ENV === "production";
 
     console.error(exception);
 
     let errMessage;
 
     if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
-      errMessage = 'Internal server error';
+      errMessage = "Internal server error";
     } else if (!isProduction && exception instanceof Error) {
-      errMessage = exception['response']?.message || exception.message || null;
+      errMessage = exception["response"]?.message || exception.message || null;
     } else {
       errMessage =
-        exception['response']?.message || 'An unexpected error occurred';
+        exception["response"]?.message || "An unexpected error occurred";
     }
 
     if (exception instanceof CustomException) {
-      console.error(exception.message); // Log the error message from CustomException
+      console.error(exception.message);
     }
 
     const errorResponse = {
