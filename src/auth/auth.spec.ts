@@ -5,6 +5,7 @@ import { JwtService } from "@nestjs/jwt";
 import { CustomException } from "../common/filter/custom-exception.filter";
 import { SignupDto, LoginDto } from "./auth.dto";
 import { pbkdf2Sync } from "crypto";
+import { ConfigModule } from "@nestjs/config";
 
 describe("AuthService", () => {
   let authService: AuthService;
@@ -12,7 +13,7 @@ describe("AuthService", () => {
   let jwtService: JwtService;
 
   const mockJwtService = {
-    sign: jest.fn().mockReturnValue("mocked-jwt-token"),
+    signAsync: jest.fn().mockReturnValue("mocked-jwt-token"),
   };
 
   const mockPrismaService = {
@@ -24,6 +25,7 @@ describe("AuthService", () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [ConfigModule],
       providers: [
         AuthService,
         { provide: PrismaService, useValue: mockPrismaService },

@@ -75,7 +75,7 @@ export class AuthService {
     return enteredHash === storedHash;
   }
 
-  async signToken(payload: any): Promise<string> {
+  signToken(payload: any): Promise<string> {
     const secret = this.config.get("JWT_SECRET");
 
     return this.jwt.signAsync(payload, { secret });
