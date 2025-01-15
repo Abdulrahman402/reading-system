@@ -5,12 +5,14 @@ import { LoginDto, SignupDto } from "./auth.dto";
 import { CustomException } from "../common/filter/custom-exception.filter";
 import { PrismaService } from "../prisma/prisma.service";
 import { omit } from "ramda";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwt: JwtService,
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
+    private readonly config: ConfigService
   ) {}
 
   async signup(dto: SignupDto): Promise<object> {
@@ -38,7 +40,10 @@ export class AuthService {
       throw new CustomException("Invalid email or password");
 
     return {
-      access_token: this.signToken({ id: user.id, role: user.role }),
+      access_token: await this.signToken({
+        id: user.id,
+        role: String(user.role),
+      }),
       user: omit(["password"], user),
     };
   }
@@ -70,7 +75,9 @@ export class AuthService {
     return enteredHash === storedHash;
   }
 
-  signToken(payload: any): string {
-    return this.jwt.sign(payload);
+  async signToken(payload: any): Promise<string> {
+    const secret = this.config.get("JWT_SECRET");
+
+    return this.jwt.signAsync(payload, { secret });
   }
 }
