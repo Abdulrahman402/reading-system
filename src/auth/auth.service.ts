@@ -3,7 +3,7 @@ import { randomBytes, pbkdf2Sync } from "crypto";
 import { JwtService } from "@nestjs/jwt";
 import { LoginDto, SignupDto } from "./auth.dto";
 import { CustomException } from "../common/filter/custom-exception.filter";
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from "../prisma/prisma.service";
 import { omit } from "ramda";
 
 @Injectable()
@@ -56,7 +56,7 @@ export class AuthService {
     const [salt, iterations, storedHash] = storedPassword.split(":");
 
     if (!salt || !iterations || !storedHash) {
-      throw new Error("Invalid stored password format");
+      throw new CustomException("Invalid stored password format");
     }
 
     const enteredHash = pbkdf2Sync(
