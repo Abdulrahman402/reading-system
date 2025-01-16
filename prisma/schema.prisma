@@ -19,13 +19,14 @@ model User {
 }
 
 model Book {
-  id               String            @id @default(cuid())
-  title            String
-  author           String
-  numOfPages       Int
-  readingIntervals ReadingInterval[]
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  id                String            @id @default(cuid())
+  title             String
+  author            String
+  numOfPages        Int
+  numOfReadingPages Int               @default(0)
+  readingIntervals  ReadingInterval[]
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 }
 
 model ReadingInterval {
