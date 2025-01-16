@@ -6,6 +6,7 @@ import { PrismaModule } from "./prisma/prisma.module";
 import { JwtService } from "@nestjs/jwt";
 import { UserModule } from "./user/user.module";
 import { BookModule } from "./book/book.module";
+import { IntervalModule } from "./interval/interval.module";
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { BookModule } from "./book/book.module";
     AuthModule,
     UserModule,
     BookModule,
+    IntervalModule,
   ],
   controllers: [],
   providers: [JwtService],
