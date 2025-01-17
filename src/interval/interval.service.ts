@@ -8,35 +8,45 @@ export class IntervalService {
   constructor(private readonly prisma: PrismaService) {}
 
   async addInterval(dto: AddIntervalDto) {
+    const { user_id, book_id, start_page, end_page } = dto;
+
+    const storedPages = await this.prisma.readingInterval.aggregate({
+      where: { bookId: book_id },
+      _min: { startPage: true },
+      _max: { endPage: true },
+    });
+
+    const lowestStoredPage = storedPages._min.startPage ?? start_page;
+    const highestStoredPage = storedPages._max.endPage ?? end_page;
+
+    const expandsDistinctPages =
+      start_page < lowestStoredPage || end_page > highestStoredPage;
+
     try {
-      const { user_id, book_id, start_page, end_page } = dto;
-      await this.prisma.$transaction([
-        this.prisma.readingInterval.create({
+      await this.prisma.$transaction(async (tx) => {
+        await tx.readingInterval.create({
           data: {
             userId: user_id,
             bookId: book_id,
             startPage: start_page,
             endPage: end_page,
           },
-        }),
+        });
 
-        this.prisma.$executeRaw`
-          UPDATE "Book"
-          SET "numOfReadingPages" = (
-          SELECT COUNT(DISTINCT page)
-          FROM (
-          SELECT generate_series("startPage", "endPage") AS page
-          FROM "ReadingInterval"
-          WHERE "bookId" = ${book_id}
-        ) AS unique_pages
-      )
-          WHERE "id" = ${book_id};`,
-      ]);
+        if (expandsDistinctPages) {
+          const lowest = Math.min(start_page, lowestStoredPage);
+          const highest = Math.max(end_page, highestStoredPage);
+
+          await tx.book.update({
+            where: { id: book_id },
+            data: { numOfReadingPages: highest - lowest + 1 },
+          });
+        }
+      });
 
       return { status_code: "success" };
     } catch (e) {
       console.error(e);
-
       throw new CustomException("Failed to add interval to database");
     }
   }
