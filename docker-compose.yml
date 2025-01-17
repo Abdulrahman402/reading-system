@@ -9,12 +9,34 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: reading-system
     ports:
-      - "5431:5432"
+      - "5431:5432"  
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: always
+    networks:
+      - reading-system
+
+  reading-system:
+    build:
+      context: .  
+      dockerfile: Dockerfile
+    container_name: reading-system
+    working_dir: /usr/src/app
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    restart: always
+    networks:
+      - reading-system
 
 volumes:
   postgres_data:
     driver: local
 
+networks:
+  reading-system:
+    name: reading-system
+    driver: bridge
