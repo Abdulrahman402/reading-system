@@ -24,7 +24,7 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Reading system to submit readers interval and suggest most readed books by distinct pages.
 
 
 ## Project clone
